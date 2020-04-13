@@ -8,7 +8,7 @@ const int ADDRESS = 0x77;
 const char* SAVE_FILE = "/home/pi/logging/save.csv";
 const char* OUT_FORMAT = "%f,%f,%lu\n";
 
-const unsigned int DELAY = 5*60; // secs
+const unsigned int DELAY = 10*60; // secs
 
 struct Readings{
 	float temperature;
