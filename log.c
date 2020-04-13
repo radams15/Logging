@@ -8,7 +8,7 @@ const int ADDRESS = 0x77;
 const char* SAVE_FILE = "/home/pi/logging/save.csv";
 const char* OUT_FORMAT = "%f,%f,%lu\n";
 
-const int DELAY = 10; // mins
+const unsigned int DELAY = 5*60; // secs
 
 struct Readings{
 	float temperature;
@@ -45,7 +45,6 @@ int write_data(struct Readings readings){
 	time_t secs = time(NULL);
 	
 	fprintf( file, OUT_FORMAT, readings.temperature, readings.pressure, secs );
-	printf( OUT_FORMAT, readings.temperature, readings.pressure, secs );
 	
 	return fclose(file);
 }
@@ -57,13 +56,21 @@ void sleep_secs(int secs){
 int main(int argc, char **argv){
 	void* bmp;
 	bmp = init(bmp);
+	unsigned long next_time = time(NULL)+DELAY;
+	unsigned long cur_time;
 	
 	while(1){
-		struct Readings readings = get_readings(bmp);
-		
-		int stat = write_data(readings);
-		
-		sleep_secs(  DELAY*60 );
+		if((cur_time = time(NULL)) == next_time){
+			
+			if(fork() == 0){ // child
+				struct Readings readings = get_readings(bmp);
+				printf( OUT_FORMAT, readings.temperature, readings.pressure, cur_time);
+				int stat = write_data(readings);
+				return 0;
+			}
+			
+			next_time = cur_time + DELAY;
+		}
 	}
 
 	bmp180_close(bmp);
