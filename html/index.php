@@ -1,6 +1,8 @@
 <center>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+<script type="text/javascript" src="chartjs-plugin-colorschemes.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"><</script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
@@ -10,12 +12,16 @@ $f = file_get_contents("data");
 
 $measurements = array_reverse(explode("\n", $f));
 
-$table = "";
+//$table = "";
 
-$table .= "<div><table class='table table-bordered table-hover'>";
-$table .= "<thead class='thead-dark'><tr><th>Date</th><th>Temperature (&#8451)</th><th>Pressure(mBar)</th></tr></thead><tbody>";
+//$table .= "<div><table class='table table-bordered table-striped table-dark'>";
+//$table .= "<thead class='thead-dark'><tr><th>Date</th><th>Temperature (&#8451)</th><th>Pressure(mBar)</th></tr></thead><tbody>";
 
 $out = [];
+
+$delay = (intval(explode(",", $measurements[1])[2]) - intval(explode(",", $measurements[2])[2]));
+
+$before = intval(explode(",", $measurements[1])[2])-$delay;
 
 foreach($measurements as $m){
 	if ($m == ""){
@@ -24,14 +30,14 @@ foreach($measurements as $m){
 	$s = explode(",", $m);
 	$date = date("d/m/Y h:i:sa",$s[2]);
 	$temp = number_format($s[0], 1);
-	$pres = number_format($s[1], 0, ".", "");
-	
-	$out[] = [$s[2], floatval($s[0]), intval($s[1])];
+	$pres = number_format($s[1], 2, ".", "");
 
-	$table .= "<tr> <td>$date</td> <td>$temp</td> <td>$pres</td> </tr>";
+	$out[] = [$s[2], floatval($s[0]), floatval($s[1])];
+
+	//$table .= "<tr> <td>$date</td> <td>$temp</td> <td>$pres</td> </tr>";
 }
 
-$table .= "</tbody></table></div>";
+//$table .= "</tbody></table></div>";
 
 $latest = $out[0];
 
@@ -47,7 +53,7 @@ if($latest[2] > 1020){
 	$weather = "Stormy";
 }
 
-echo "<h2>Latest Measurement (" . date("h:i:sa",$latest[0]) . "):</h2><h3>Temperature: ". number_format($latest[1], 1) ."&degC<br>Pressure: $latest[2] mBar<br>Weather: $weather</h3>";
+echo "<h2>Latest Measurement (" . date("h:i:sa",$latest[0]) . "):</h2><h3>Temperature: ". number_format($latest[1], 1) ."&degC<br>Pressure: ".number_format($latest[2], 2, ".", "")." mBar<br>Weather: $weather</h3>";
 
 include "graph.js.php";
 
@@ -60,9 +66,21 @@ include "graph.js.php";
 </div>
 
 <style>
-.graph{
-	width: 100%;
-}
+	body{
+		background-color: #4E4E4E;
+	}
+
+	p, h1, h2, h3, tr, th{
+		color: white;
+	}
+
+	.graph{
+		width: 90%;
+	}
+
+	table{
+		width: 90% !important;
+	}
 </style>
 
 <script type="text/javascript">
@@ -94,29 +112,23 @@ var pressures = [<?php
 			echo "$m[2],";
 		}
 	?>];
-
-var presCol = "#2600ff";
-var tempCol = "#ff0000";
-
 dates.pop(); // remove last element which is null
 
+
+Chart.defaults.global.defaultFontColor = "white";
 var color = Chart.helpers.color;
 var config = {
 	type: 'line',
 	data: {
 		labels: dates,
 		datasets: [{
-			label: 'My First dataset',
-			backgroundColor: color(tempCol).alpha(0.5).rgbString(),
-			borderColor: tempCol,
+			label: 'Temperature',
 			fill: false,
 			label: 'Temperature',
 			yAxisID: 'temperature',
 			data: temperatures
 		}, {
-			label: 'My Second dataset',
-			backgroundColor: color(presCol).alpha(0.5).rgbString(),
-			borderColor: presCol,
+			label: 'Pressure',
 			fill: false,
 			label: 'Pressure',
 			yAxisID: 'pressure',
@@ -127,9 +139,14 @@ var config = {
 		title: {
 			text: 'Chart.js Time Scale'
 		},
+		plugins: {
+			colorschemes: {
+				scheme: 'brewer.DarkTwo7'
+			}
+		},
 		elements: {
 			line: {
-				tension: 0.6
+				tension: 0.3
 			}
 		},
 		scales: {
@@ -139,7 +156,7 @@ var config = {
 					parser: timeFormat,
 					time: {},
 				},
-			}],		
+			}],
 			yAxes: [{
 				id: 'temperature',
 				type: 'linear',
@@ -167,6 +184,6 @@ var myLineChart = new Chart(ctx, config);
 <br><br><br><br>
 
 <?php
-echo $table;
+//echo $table;
 ?>
 </center>
