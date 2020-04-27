@@ -1,7 +1,2 @@
 <?php
-
-$f = file_get_contents("data");
-
-$measurements = array_reverse(explode("\n", $f));
-
-echo $measurements[1];
+echo array_reverse(explode("\n", file_get_contents("data")))[1];

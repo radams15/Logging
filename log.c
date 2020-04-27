@@ -9,6 +9,7 @@ const char *I2C_DEVICE = "/dev/i2c-1";
 const int ADDRESS = 0x77;
 const char* SAVE_FILE = "/home/pi/logging/save.csv";
 const char* OUT_FORMAT = "%f,%f,%lu\n";
+char* CONF_FILE = "/home/pi/logging/flask_site/config.json";
 
 unsigned int delay; // in secs
 
@@ -83,7 +84,7 @@ int main(int argc, char **argv){
 	jsmntok_t t[32]; // 32 max tokens
 
 
-	char* json_file_data = readFile("/home/pi/logging/html/config.json");
+	char* json_file_data = readFile(CONF_FILE);
 
 	jsmn_init(&p);
 	int r = jsmn_parse(&p, json_file_data, strlen(json_file_data), t, sizeof(t) / sizeof(t[0]));

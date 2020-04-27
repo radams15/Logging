@@ -1,0 +1,154 @@
+<html>
+	<head>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chartjs-plugin-colorschemes"></script>
+		<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+		<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	</head>
+	
+	<body><center>
+		<h2 id="latest_title"></h2><h3 id="latest_body"></h3>
+
+		<br><br><br><br>
+
+		<div class="graph">
+				<canvas id="canvas"></canvas>
+		</div>
+
+		<style>
+			body{
+				background-color: #4E4E4E;
+			}
+
+			p, h1, h2, h3, tr, th{
+				color: white;
+			}
+
+			.graph{
+				width: 90%;
+			}
+
+			table{
+				width: 90% !important;
+			}
+		</style>
+		
+		<script type="text/javascript">
+			
+			function epoch(str){
+				var date = new Date(0);
+				date.setUTCSeconds(str);
+				return moment.unix(parseInt(str));
+			}
+			
+			var xhttp = new XMLHttpRequest();
+			xhttp.open("GET", "data", false);
+			xhttp.send();
+			var data = xhttp.responseText.split("\n");
+			
+			var latest = data[data.length-2].split(",");
+			
+			var weather;
+			if(latest[1] > 1020){
+				weather = "Very Dry";
+			}else if(latest[1] > 1005){
+				weather = "Fair";
+			}else if(latest[1] > 995){
+				weather = "Changeable";
+			}else if(latest[1] > 975){
+				weather = "Rain";
+			}else{
+				weather = "Stormy";
+			}
+			
+			document.getElementById("latest_title").innerHTML = "Latest Measurement: " + epoch(latest[2]).format("LLLL");
+			document.getElementById("latest_body").innerHTML = "Temperature: "+ parseFloat(latest[0]) +" &degC<br>Pressure: "+ parseFloat(latest[1]) +" mBar<br>Weather: " + weather;
+		</script>
+
+		<script type="text/javascript">
+		var ctx = "canvas";
+
+		var timeFormat = 'MM/DD/YYYY HH:mm';
+		
+		var dates = [];
+		var temperatures = [];
+		var pressures = [];
+		
+		for( var i = data.length-2 ; i >= 0  ; i-- ){ // the last date is always null, so don't include it!
+			var vals = data[i].split(",");
+			dates.push(epoch(vals[2]));
+			temperatures.push(vals[0]);
+			pressures.push(vals[1]);
+		}
+		
+		console.log(dates);
+
+		Chart.defaults.global.defaultFontColor = "white";
+		var color = Chart.helpers.color;
+		var config = {
+			type: 'line',
+			data: {
+				labels: dates,
+				datasets: [{
+					label: 'Temperature',
+					fill: false,
+					label: 'Temperature',
+					yAxisID: 'temperature',
+					data: temperatures
+				}, {
+					label: 'Pressure',
+					fill: false,
+					label: 'Pressure',
+					yAxisID: 'pressure',
+					data: pressures,
+				}]
+			},
+			options: {
+				title: {
+					text: 'Chart.js Time Scale'
+				},
+				plugins: {
+					colorschemes: {
+						scheme: 'brewer.DarkTwo7'
+					}
+				},
+				elements: {
+					line: {
+						tension: 0.3
+					}
+				},
+				scales: {
+					xAxes: [{
+						type: 'time',
+						time: {
+							parser: timeFormat,
+							time: {},
+						},
+					}],
+					yAxes: [{
+						id: 'temperature',
+						type: 'linear',
+						position: 'left',
+						scaleLabel: {
+							display: true,
+							labelString: 'Temperature (\u00B0C)'
+						}
+					  }, {
+						id: 'pressure',
+						type: 'linear',
+						position: 'right',
+						scaleLabel: {
+							display: true,
+							labelString: 'Pressure (mBar)'
+						}
+					  }]
+				},
+			}
+		};
+
+		var myLineChart = new Chart(ctx, config);
+		</script>
+	</center></body>
+</html>
