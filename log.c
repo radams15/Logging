@@ -9,7 +9,7 @@ const char *I2C_DEVICE = "/dev/i2c-1";
 const int ADDRESS = 0x77;
 const char* SAVE_FILE = "/home/pi/logging/save.csv";
 const char* OUT_FORMAT = "%f,%f,%lu\n";
-char* CONF_FILE = "/home/pi/logging/flask_site/config.json";
+char* CONF_FILE = "/home/pi/logging/html/config.json";
 
 unsigned int delay; // in secs
 
