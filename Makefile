@@ -5,7 +5,7 @@ CPP=g++
 C=gcc
 
 main:
-	#export LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH # put this in bashrc, needed to run program
+	# export LD_LIBRARY_PATH=/home/pi/logging:$LD_LIBRARY_PATH # put this in bashrc, needed to run program
 	${CPP} -L/home/pi/logging -std=c${STD} main.cpp  ${ERRORS} -o log -lbmp180
 
 link:

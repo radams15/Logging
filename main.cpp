@@ -1,4 +1,5 @@
 #include <iostream>
+#include <linux/i2c.h>
 #include <unistd.h>
 #include <time.h>
 #include <fstream>
@@ -11,7 +12,7 @@ extern "C"{
 const char *I2C_DEVICE = "/dev/i2c-1";
 int ADDRESS;// = 0x77;
 const char* SAVE_FILE = "/home/pi/logging/save.csv";
-char* CONF_FILE = "/home/pi/logging/html/config.json";
+char* CONF_FILE = "/home/pi/logging/website/config.json";
 
 struct Data{
 	float temperature;
